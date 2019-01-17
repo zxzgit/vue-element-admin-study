@@ -22,7 +22,7 @@ import Layout from '../views/layout/Layout'
     breadcrumb: false            if false, the item will hidden in breadcrumb(default is true)
   }
 **/
-export const constantRouterMap = [
+let constantRouterMap = [
   { path: '/login', component: () => import('@/views/login/index'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
 
@@ -142,8 +142,100 @@ export const constantRouterMap = [
     ]
   },
 
+  {
+    path: '/user',
+    component: Layout,
+    meta: { title: 'user', icon: 'link' },
+    redirect: '/nested/menu1',
+    name: 'userList',
+    children: [
+      {
+        path: ':id/profile',
+        meta: { title: '用户信息信息', icon: 'link' },
+        hidden: true
+      },
+      {
+        path: '1/profile',
+        meta: { title: '用户1', icon: 'link' },
+      },
+      {
+        path: '2/profile',
+        meta: { title: '用户2', icon: 'link' },
+      }
+    ]
+  },
+
+  {
+    path: '/admin',
+    component: Layout,
+    meta: { title: '管理员', icon: 'link' },
+    redirect: '/nested/menu1',
+    name: 'userList',
+    children: [
+      {
+        path: 'users',
+        meta: { title: '用户信息信息', icon: 'link' },
+        hidden: true
+      },
+      {
+        path: 'roles',
+        meta: { title: '后台用户', icon: 'link' },
+      },
+      {
+        path: 'pages',
+        meta: { title: '后台角色', icon: 'link' },
+      }
+    ]
+  },
+
   { path: '*', redirect: '/404', hidden: true }
 ]
+
+
+/**
+ * 通过meta.role判断是否与当前用户权限匹配
+ * @param roles
+ * @param route
+ */
+function hasPermission(permissionList, route,basePath) {
+  console.log(basePath+route.path);
+    if (route.path) {
+        let result = permissionList.some(page => page.path == (basePath + route.path))
+        console.log(result);
+        return result;
+    } else {
+        return false
+    }
+}
+
+/**
+ * 递归过滤异步路由表，返回符合用户角色权限的路由表
+ * @param routes asyncRouterMap
+ * @param roles
+ */
+function filterAsyncRouter(routes, permissionList, basePath = '') {
+    const res = []
+    
+    routes.forEach(route => {
+      
+        const tmp = { ...route }
+        if (hasPermission(permissionList, tmp, basePath)) {
+            if (tmp.children) {
+                tmp.children = filterAsyncRouter(tmp.children, permissionList, basePath + tmp.path + '/')
+            }
+            res.push(tmp)
+        }
+    })
+    
+    return res
+}
+
+let remotePermission = [{"id":1,"title":"\u540e\u53f0\u7cfb\u7edf\u7ba1\u7406","path":"\/admin","pid":0,"created_at":null,"updated_at":null},{"id":2,"title":"\u540e\u53f0\u7528\u6237","path":"\/admin\/users","pid":1,"created_at":null,"updated_at":null},{"id":3,"title":"\u540e\u53f0\u89d2\u8272","path":"\/admin\/roles","pid":1,"created_at":null,"updated_at":null},{"id":4,"title":"\u540e\u53f0\u9875\u9762","path":"\/admin\/pages","pid":1,"created_at":null,"updated_at":null},{"id":5,"title":"\u8ba2\u5355\u7ba1\u7406","path":"\/order","pid":0,"created_at":null,"updated_at":null},{"id":6,"title":"\u7b49\u5f85\u4e2d\u7684\u8ba2\u5355","path":"\/waitOrder","pid":5,"created_at":null,"updated_at":null},{"id":7,"title":"\u670d\u52a1\u4e2d\u7684\u8ba2\u5355","path":"\/serviceOrder","pid":5,"created_at":null,"updated_at":null}];
+
+let permissionRouterMap = filterAsyncRouter(constantRouterMap,remotePermission);
+
+export var resultPermissionRouterMap = permissionRouterMap
+console.log(resultPermissionRouterMap);
 
 export default new Router({
   // mode: 'history', //后端支持可开
