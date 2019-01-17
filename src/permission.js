@@ -5,9 +5,16 @@ import 'nprogress/nprogress.css'// Progress 进度条样式
 import { Message } from 'element-ui'
 import { getToken } from '@/utils/auth' // 验权
 
+import asyncRouter from './router/async'
+
 const whiteList = ['/login'] // 不重定向白名单
 router.beforeEach((to, from, next) => {
   NProgress.start()
+  
+  //router.addRoutes(asyncRouter) // 动态添加可访问路由表,不知道为什么这个无效，使用如下方式可以
+  //fixme 在登陆成功后执行一次权限路由的添加
+  router.options.routes = router.options.routes.concat(asyncRouter)
+  
   if (getToken()) {
     if (to.path === '/login') {
       next({ path: '/' })
