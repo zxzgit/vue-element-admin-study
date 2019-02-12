@@ -29,7 +29,13 @@ const user = {
     Login({ commit }, userInfo) {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
-        login(username, userInfo.password).then(response => {
+        //todo 固定测试
+        let token = '123456';
+        setToken(token)
+        commit('SET_TOKEN', token)
+        resolve()
+        
+        0 && login(username, userInfo.password).then(response => {
           const data = response.data
           setToken(data.token)
           commit('SET_TOKEN', data.token)
@@ -43,7 +49,13 @@ const user = {
     // 获取用户信息
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
-        getInfo(state.token).then(response => {
+        //todo 固定测试数据
+        commit('SET_ROLES', ['admin'])
+        commit('SET_NAME', 'zxz')
+        commit('SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
+        resolve()
+        
+        0 && getInfo(state.token).then(response => {
           const data = response.data
           if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
             commit('SET_ROLES', data.roles)

@@ -13,7 +13,7 @@ router.beforeEach((to, from, next) => {
   
   //router.addRoutes(asyncRouter) // 动态添加可访问路由表,不知道为什么这个无效，使用如下方式可以
   //fixme 在登陆成功后执行一次权限路由的添加
-  router.options.routes = router.options.routes.concat(asyncRouter)
+  //router.options.routes = router.options.routes.concat(asyncRouter)
   
   if (getToken()) {
     if (to.path === '/login') {
